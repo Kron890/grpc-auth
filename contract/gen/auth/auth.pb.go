@@ -441,8 +441,8 @@ const file_contract_proto_auth_proto_rawDesc = "" +
 	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"m\n" +
 	"\x15RefreshTokensResponse\x12(\n" +
 	"\x10new_access_token\x18\x01 \x01(\tR\x0enewAccessToken\x12*\n" +
-	"\x11new_refresh_token\x18\x02 \x01(\tR\x0fnewRefreshToken2\x88\x02\n" +
-	"\vAuthService\x129\n" +
+	"\x11new_refresh_token\x18\x02 \x01(\tR\x0fnewRefreshToken2\x81\x02\n" +
+	"\x04Auth\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12B\n" +
 	"\vVerifyToken\x12\x18.auth.VerifyTokenRequest\x1a\x19.auth.VerifyTokenResponse\x12H\n" +
@@ -472,14 +472,14 @@ var file_contract_proto_auth_proto_goTypes = []any{
 	(*RefreshTokensResponse)(nil), // 7: auth.RefreshTokensResponse
 }
 var file_contract_proto_auth_proto_depIdxs = []int32{
-	0, // 0: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	2, // 1: auth.AuthService.Login:input_type -> auth.LoginRequest
-	4, // 2: auth.AuthService.VerifyToken:input_type -> auth.VerifyTokenRequest
-	6, // 3: auth.AuthService.RefreshTokens:input_type -> auth.RefreshTokensRequest
-	1, // 4: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	3, // 5: auth.AuthService.Login:output_type -> auth.LoginResponse
-	5, // 6: auth.AuthService.VerifyToken:output_type -> auth.VerifyTokenResponse
-	7, // 7: auth.AuthService.RefreshTokens:output_type -> auth.RefreshTokensResponse
+	0, // 0: auth.Auth.Register:input_type -> auth.RegisterRequest
+	2, // 1: auth.Auth.Login:input_type -> auth.LoginRequest
+	4, // 2: auth.Auth.VerifyToken:input_type -> auth.VerifyTokenRequest
+	6, // 3: auth.Auth.RefreshTokens:input_type -> auth.RefreshTokensRequest
+	1, // 4: auth.Auth.Register:output_type -> auth.RegisterResponse
+	3, // 5: auth.Auth.Login:output_type -> auth.LoginResponse
+	5, // 6: auth.Auth.VerifyToken:output_type -> auth.VerifyTokenResponse
+	7, // 7: auth.Auth.RefreshTokens:output_type -> auth.RefreshTokensResponse
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

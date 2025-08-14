@@ -1,8 +1,12 @@
 package app
 
-import "auth-grpc/config"
+import (
+	"auth-grpc/internal/config"
 
-func Init(srv *Server, cfg config.Config, grpc config.ConfigGRPC) error {
+	"github.com/sirupsen/logrus"
+)
+
+func Init(srv *Server, cfg config.Config, logs *logrus.Logger) error {
 
 	return nil
 }

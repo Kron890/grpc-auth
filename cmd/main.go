@@ -1,29 +1,25 @@
 package main
 
 import (
-	"auth-grpc/config"
 	"auth-grpc/internal/app"
-	"auth-grpc/logger"
+	"auth-grpc/internal/config"
+	"auth-grpc/pgk/logger"
+
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
-	logger.Init()
+	cfg := config.MustLoad()
 
 	srv := app.NewServer()
 
-	cfg, err := config.GetConfig()
-	if err != nil {
-		logger.Log.Error("Error: unable to load configuration:", err)
-	}
+	logs := logger.Init()
+	logs.Info("logger is initialized")
+	logs.Info(cfg)
 
-	cfgGRPC, err := config.GetConfigGRPC()
+	err := app.Init(srv, *cfg, logs)
 	if err != nil {
-		logger.Log.Error("Error: unable to load configuration:", err)
-	}
-
-	err = app.Init(srv, cfg, cfgGRPC)
-	if err != nil {
-		logger.Log.Error("Error: failed to initialize application:", err)
+		log.Error("Error: failed to initialize application:", err)
 	}
 
 }
