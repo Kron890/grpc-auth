@@ -4,8 +4,6 @@ import (
 	"auth-grpc/internal/app"
 	"auth-grpc/internal/config"
 	"auth-grpc/pgk/logger"
-
-	"github.com/labstack/gommon/log"
 )
 
 func main() {
@@ -15,11 +13,9 @@ func main() {
 
 	logs := logger.Init()
 	logs.Info("logger is initialized")
-	logs.Info(cfg)
 
-	err := app.Init(srv, *cfg, logs)
-	if err != nil {
-		log.Error("Error: failed to initialize application:", err)
-	}
+	initializer := app.Init(srv, *cfg, logs)
+
+	initializer.GRPCServer.MustRun()
 
 }

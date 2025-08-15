@@ -4,14 +4,15 @@
 // 	protoc        v6.32.0--rc2
 // source: contract/proto/auth.proto
 
-package auth
+package sso
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -446,7 +447,7 @@ const file_contract_proto_auth_proto_rawDesc = "" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12B\n" +
 	"\vVerifyToken\x12\x18.auth.VerifyTokenRequest\x1a\x19.auth.VerifyTokenResponse\x12H\n" +
-	"\rRefreshTokens\x12\x1a.auth.RefreshTokensRequest\x1a\x1b.auth.RefreshTokensResponseB\x13Z\x11contract/gen/authb\x06proto3"
+	"\rRefreshTokens\x12\x1a.auth.RefreshTokensRequest\x1a\x1b.auth.RefreshTokensResponseB\x17Z\x15contract/gen/auth;ssob\x06proto3"
 
 var (
 	file_contract_proto_auth_proto_rawDescOnce sync.Once
