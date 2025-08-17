@@ -8,7 +8,6 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// todo через yaml файл
 type Config struct {
 	ServerPort string        `yaml:"SERVER_PORT"`
 	DBPort     string        `yaml:"POSTGRES_PORT"`
@@ -24,6 +23,7 @@ type ConfigGRPC struct {
 	Timeout time.Duration `yaml:"timeout"`
 }
 
+// Загрузка конфига
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {

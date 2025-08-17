@@ -1,3 +1,7 @@
+В разработке: gRPC-сервис аутентификации и авторизации.
+Реализует регистрацию пользователей, вход, JWT-токенизацию (Access/Refresh) и верификацию прав доступа через gRPC.
+Используется Redis для управления сессиями и безопасного хранения учетных данных.
+
 go run cmd/main.go --config=./config/local.yaml
 
 protoc --go_out=. --go-grpc_out=. ./contract/proto/auth.proto

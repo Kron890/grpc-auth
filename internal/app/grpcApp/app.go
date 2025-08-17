@@ -1,7 +1,7 @@
 package grpcapp
 
 import (
-	authgrpc "auth-grpc/internal/grpc/auth"
+	authgrpc "auth-grpc/internal/delivery/grpc/auth"
 	"fmt"
 	"net"
 
@@ -26,6 +26,7 @@ func New(port int, logs *logrus.Logger) *App {
 	}
 }
 
+// Запуск gRPC сервера
 func (a *App) MustRun() {
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {

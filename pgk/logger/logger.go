@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// запуск логгера
 func Init() *logrus.Logger {
 	log := logrus.New()
 	log.SetOutput(os.Stdout)
