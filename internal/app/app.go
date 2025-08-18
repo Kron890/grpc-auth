@@ -6,7 +6,6 @@ import (
 	"auth-grpc/internal/config"
 	"auth-grpc/internal/repository"
 	"auth-grpc/internal/usecase"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -16,17 +15,17 @@ type App struct {
 }
 
 // Init Инициализация зависимостей
-func Init(srv *Server, cfg config.Config, logs *logrus.Logger) *App {
-	db, err := postgres.NewDBConnect(cfg.DBPort)
+func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
+	db, err := postgres.New(cfg.DBPort)
 	if err != nil {
 		logs.Error(err) //TODO ...
 	}
 
-	repository, err := repository.New(db)
-	uc := usecase.New(*logs, repository, repository, cfg.TokenTTL)
-	fmt.Println(uc)
+	repository := repository.New(db)
 
-	gRPCServer := grpcapp.New(cfg.GRPC.Port, logs)
+	uc := usecase.New(logs, repository, repository, cfg.TokenTTL)
+
+	gRPCServer := grpcapp.New(cfg.GRPC.Port, uc, logs)
 
 	return &App{
 		GRPCServer: gRPCServer,

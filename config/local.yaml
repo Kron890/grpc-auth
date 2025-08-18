@@ -5,7 +5,7 @@ POSTGRES_PORT: "5432"
 POSTGRES_USER: "admin"
 POSTGRES_DB: "my_db"
 POSTGRES_HOST: "localhost"
-token_ttl: 10h
+token_ttl: 1h
 grpc:
   port: 55055
   timeout: 10h

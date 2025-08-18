@@ -2,7 +2,9 @@ package auth
 
 import (
 	sso "auth-grpc/contract/gen/auth"
+	"auth-grpc/internal"
 	"context"
+	"fmt"
 
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc"
@@ -10,30 +12,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Auth interface {
-	Register(ctx context.Context, login, password string) (string, error)
-	login(ctx context.Context, login, password string) error
-}
-
 type ServerAPI struct {
 	sso.UnimplementedAuthServer
-	auth Auth
+	auth internal.Auth
 }
 
-// Регистрируеми сервер
-func RegisterServer(gRPC *grpc.Server, auth Auth) {
+// RegisterServer регистрируеми сервер
+func RegisterServer(gRPC *grpc.Server, auth internal.Auth) {
 	sso.RegisterAuthServer(gRPC, &ServerAPI{auth: auth})
 }
 
-// Регистрация пользователя
+// Register регистрация пользователя
 func (s *ServerAPI) Register(ctx context.Context, req *sso.RegisterRequest) (*sso.RegisterResponse, error) {
-
-	if !govalidator.IsASCII(req.GetLogin()) {
-		return &sso.RegisterResponse{}, status.Error(codes.InvalidArgument, "email is required")
-	}
-
-	if !govalidator.IsASCII(req.GetPassword()) {
-		return &sso.RegisterResponse{}, status.Error(codes.InvalidArgument, "password is required")
+	if err := s.checkLoginPass(req.GetLogin(), req.Password); err != nil {
+		return &sso.RegisterResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	id, err := s.auth.Register(ctx, req.GetLogin(), req.GetPassword())
@@ -45,17 +37,13 @@ func (s *ServerAPI) Register(ctx context.Context, req *sso.RegisterRequest) (*ss
 	return &sso.RegisterResponse{UserId: id}, nil
 }
 
-// Авторизация пользователя
+// Login авторизация пользователя
 func (s *ServerAPI) Login(ctx context.Context, req *sso.LoginRequest) (*sso.LoginResponse, error) {
-	if !govalidator.IsASCII(req.GetLogin()) {
-		return &sso.LoginResponse{}, status.Error(codes.InvalidArgument, "email is required")
+	if err := s.checkLoginPass(req.GetLogin(), req.Password); err != nil {
+		return &sso.LoginResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if !govalidator.IsASCII(req.GetPassword()) {
-		return &sso.LoginResponse{}, status.Error(codes.InvalidArgument, "incorrect password")
-	}
-
-	err := s.auth.login(ctx, req.GetLogin(), req.Password)
+	err := s.auth.Login(ctx, req.GetLogin(), req.Password)
 	if err != nil {
 		//todo ...
 		return &sso.LoginResponse{}, status.Error(codes.Internal, "internal error")
@@ -69,4 +57,15 @@ func (s *ServerAPI) VerifyToken(ctx context.Context, req *sso.VerifyTokenRequest
 
 func (s *ServerAPI) RefreshTokens(ctx context.Context, req *sso.RefreshTokensRequest) (*sso.RefreshTokensResponse, error) {
 	panic("RefreshTokens")
+}
+
+func (s *ServerAPI) checkLoginPass(login string, password string) error {
+	if !govalidator.IsASCII(login) {
+		return fmt.Errorf("email is required")
+	}
+
+	if !govalidator.IsASCII(password) {
+		return fmt.Errorf("password is required")
+	}
+	return nil
 }

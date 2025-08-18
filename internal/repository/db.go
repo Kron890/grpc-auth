@@ -10,18 +10,22 @@ type Repository struct {
 	// db database.Database
 }
 
-func New(db *postgres.Database) (*Repository, error) {
-	return &Repository{}, nil
+// TODO:...
+func New(db *postgres.Database) *Repository {
+	return &Repository{}
 }
 
-func (r *Repository) SaveUser(ctx context.Context, login string, passHash []byte) (domain.User, error) {
+// Create добавляет в базу данных логин и хеш-пароля
+func (r *Repository) Creat(ctx context.Context, login string, passHash []byte) (domain.User, error) {
 	return domain.User{}, nil
 }
 
-func (r *Repository) UserAuth(ctx context.Context, login string, passHash []byte) (domain.User, error) {
+// Authenticate сравнивает логин с хеш-паролем в базе данных
+func (r *Repository) Authenticate(ctx context.Context, login string, passHash []byte) (domain.User, error) {
 	return domain.User{}, nil
 }
 
+// TODO:...
 func (r *Repository) App(ctx context.Context, appID int) {
 
 }

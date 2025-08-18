@@ -1,8 +1,9 @@
 package usecase
 
 import (
-	"auth-grpc/internal/domain"
+	"auth-grpc/internal"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -10,22 +11,41 @@ import (
 
 type Auth struct {
 	logs        *logrus.Logger
-	usr         User
-	appProvider AppProvider
+	user        internal.User
+	appProvider internal.AppProvider
+	tokenTTL    time.Duration
 }
 
-// TODO: передавать структуру
-type User interface {
-	SaveUser(ctx context.Context, login string, passHash []byte) (domain.User, error)
-	UserAuth(ctx context.Context, login string, passHash []byte) (domain.User, error)
-}
-type AppProvider interface {
-	App(ctx context.Context, appID int)
-}
-
-func New(logs logrus.Logger, user User, appProvider AppProvider, tokenTTL time.Duration) *Auth {
+// TODO:...
+func New(logs *logrus.Logger, user internal.User, appProvider internal.AppProvider, tokenTTL time.Duration) *Auth {
 	return &Auth{
-		logs:        &logs,
-		usr:         user,
+		logs:        logs,
+		user:        user,
 		appProvider: appProvider}
+}
+
+// Register TODO
+func (a *Auth) Register(ctx context.Context, login, password string) (string, error) {
+	//TODO: хеш + соль
+
+	user, err := a.user.Creat(ctx, login, []byte(password))
+	if err != nil {
+		a.logs.Error("user creation failed:", err)
+		return "", err
+	}
+
+	a.logs.Info("user has been successfully registered")
+	return fmt.Sprintf("%d", user.ID), nil
+}
+
+// Login TODO
+func (a *Auth) Login(ctx context.Context, login, password string) error {
+	//TODO: хеш + соль
+
+	user, err := a.user.Authenticate(ctx, login, []byte(password))
+	if err != nil {
+		return err
+	}
+	fmt.Println("user", user) //TODO:...
+	return nil
 }

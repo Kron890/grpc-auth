@@ -2,6 +2,7 @@ package grpcapp
 
 import (
 	authgrpc "auth-grpc/internal/delivery/grpc/auth"
+	"auth-grpc/internal/usecase"
 	"fmt"
 	"net"
 
@@ -15,9 +16,10 @@ type App struct {
 	port       int
 }
 
-func New(port int, logs *logrus.Logger) *App {
+func New(port int, uc *usecase.Auth, logs *logrus.Logger) *App {
 	gRPCServer := grpc.NewServer()
-	authgrpc.RegisterServer(gRPCServer)
+
+	authgrpc.RegisterServer(gRPCServer, uc)
 
 	return &App{
 		logs:       logs,

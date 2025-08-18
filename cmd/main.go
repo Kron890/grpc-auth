@@ -17,16 +17,16 @@ func main() {
 	logs := logger.Init()
 	logs.Info("logger is initialized")
 
-	initializer := app.Init(srv, *cfg, logs)
+	application := app.Init(srv, cfg, logs)
 
-	go initializer.GRPCServer.MustRun()
+	go application.GRPCServer.MustRun()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	signalStop := <-stop
 
-	initializer.GRPCServer.Stop()
+	application.GRPCServer.Stop()
 	logs.Info("initializer stopped: ", signalStop)
 
 }

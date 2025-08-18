@@ -6,6 +6,6 @@ type Database struct {
 	db sql.DB
 }
 
-func NewDBConnect(port string) (*Database, error) {
+func New(port string) (*Database, error) {
 	return &Database{}, nil
 }
