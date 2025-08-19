@@ -20,8 +20,8 @@ func (r *Repository) Creat(ctx context.Context, login string, passHash []byte) (
 	return domain.User{}, nil
 }
 
-// Authenticate сравнивает логин с хеш-паролем в базе данных
-func (r *Repository) Authenticate(ctx context.Context, login string, passHash []byte) (domain.User, error) {
+// GetUser вытаскивает из бд по login данные id,login,password
+func (r *Repository) GetUser(ctx context.Context, login string) (domain.User, error) {
 	return domain.User{}, nil
 }
 
