@@ -1,9 +1,9 @@
 package app
 
 import (
-	"auth-grpc/infrastructure/postgres"
 	"auth-grpc/internal/app/grpcapp"
 	"auth-grpc/internal/config"
+	"auth-grpc/internal/infrastructure/postgres"
 	"auth-grpc/internal/repository"
 	"auth-grpc/internal/usecase"
 
@@ -16,7 +16,7 @@ type App struct {
 
 // Init Инициализация зависимостей
 func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
-	db, err := postgres.New(cfg.DBPort)
+	db, err := postgres.New(cfg)
 	if err != nil {
 		logs.Error(err) //TODO ...
 	}

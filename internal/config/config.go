@@ -13,6 +13,7 @@ type Config struct {
 	DBPort     string        `yaml:"POSTGRES_PORT"`
 	User       string        `yaml:"POSTGRES_USER"`
 	DB         string        `yaml:"POSTGRES_DB"`
+	DBPassword string        `yaml:"POSTGRES_DBPASSWORD"`
 	Host       string        `yaml:"POSTGRES_HOST"`
 	TokenTTL   time.Duration `yaml:"token_ttl" env-required:"true"`
 	GRPC       ConfigGRPC    `yaml:"grpc"`

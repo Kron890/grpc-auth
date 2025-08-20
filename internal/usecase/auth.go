@@ -59,10 +59,10 @@ func (a *Auth) Register(ctx context.Context, login, password string) (string, er
 	return fmt.Sprintf("%d", user.ID), nil
 }
 
-// Login TODO
+// Login TODO: возращать токен
 func (a *Auth) Login(ctx context.Context, login, password string) error {
 	//TODO: хеш + соль
-	user, err := a.user.GetAll(ctx, login)
+	user, err := a.user.GetUser(ctx, login)
 	if errors.Is(err, repository.ErrUserNotFound) {
 		a.logs.Warn("user not found", err)
 		return err

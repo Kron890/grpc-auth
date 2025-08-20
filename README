@@ -7,3 +7,4 @@ go run cmd/main.go --config=./config/local.yaml
 protoc --go_out=. --go-grpc_out=. ./contract/proto/auth.proto
 
 
+добавлены база данных 

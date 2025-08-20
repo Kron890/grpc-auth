@@ -1,18 +1,18 @@
 package repository
 
 import (
-	"auth-grpc/infrastructure/postgres"
 	"auth-grpc/internal/domain"
+	"auth-grpc/internal/infrastructure/postgres"
 	"context"
 )
 
 type Repository struct {
-	// db database.Database
+	DB *postgres.DataBase
 }
 
 // TODO:...
-func New(db *postgres.Database) *Repository {
-	return &Repository{}
+func New(db *postgres.DataBase) *Repository {
+	return &Repository{DB: db}
 }
 
 // Create добавляет в базу данных логин и хеш-пароля
