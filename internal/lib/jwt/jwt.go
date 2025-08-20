@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"auth-grpc/internal/lib/jwt/dto"
+	"fmt"
 	"os"
 	"time"
 
@@ -19,10 +20,9 @@ func NewToken(user dto.UserClaims, duration time.Duration) (string, error) {
 
 	secret := os.Getenv("SECRET")
 	if secret == "" {
-		panic("secret nil") //TODO:...
+		return "", fmt.Errorf("secret not found")
 	}
-
-	signetToken, err := jwtToken.SignedString(secret)
+	signetToken, err := jwtToken.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}

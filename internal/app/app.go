@@ -18,7 +18,7 @@ type App struct {
 func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
 	db, err := postgres.New(cfg)
 	if err != nil {
-		logs.Error(err) //TODO ...
+		logs.Error("database is not connected", err)
 	}
 
 	repository := repository.New(db)

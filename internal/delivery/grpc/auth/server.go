@@ -17,8 +17,8 @@ type ServerAPI struct {
 	auth internal.Auth
 }
 
-// RegisterServer регистрируеми сервер
-func RegisterServer(gRPC *grpc.Server, auth internal.Auth) {
+// New регистрируеми сервер
+func New(gRPC *grpc.Server, auth internal.Auth) {
 	sso.RegisterAuthServer(gRPC, &ServerAPI{auth: auth})
 }
 
@@ -34,7 +34,7 @@ func (s *ServerAPI) Register(ctx context.Context, req *sso.RegisterRequest) (*ss
 		return &sso.RegisterResponse{}, status.Error(codes.Internal, "internal error")
 	}
 
-	return &sso.RegisterResponse{UserId: id}, nil
+	return &sso.RegisterResponse{UserId: fmt.Sprintf("%d", id)}, nil
 }
 
 // Login авторизация пользователя
@@ -43,12 +43,12 @@ func (s *ServerAPI) Login(ctx context.Context, req *sso.LoginRequest) (*sso.Logi
 		return &sso.LoginResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	err := s.auth.Login(ctx, req.GetLogin(), req.Password)
+	token, err := s.auth.Login(ctx, req.GetLogin(), req.Password)
 	if err != nil {
 		//todo ...
 		return &sso.LoginResponse{}, status.Error(codes.Internal, "internal error")
 	}
-	return &sso.LoginResponse{}, nil
+	return &sso.LoginResponse{AccessToken: token}, nil
 }
 
 func (s *ServerAPI) VerifyToken(ctx context.Context, req *sso.VerifyTokenRequest) (*sso.VerifyTokenResponse, error) {

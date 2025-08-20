@@ -2,12 +2,12 @@ package usecase
 
 import (
 	"auth-grpc/internal"
+	"auth-grpc/internal/domain"
+	"auth-grpc/internal/domain/filters"
 	"auth-grpc/internal/lib/jwt"
 	"auth-grpc/internal/lib/jwt/dto"
-	"auth-grpc/internal/repository"
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -36,54 +36,64 @@ func New(logs *logrus.Logger, user internal.User, appProvider internal.AppProvid
 }
 
 // Register TODO
-func (a *Auth) Register(ctx context.Context, login, password string) (string, error) {
-	//TODO: хеш + соль
+func (a *Auth) Register(ctx context.Context, login, password string) (int64, error) {
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		a.logs.Error("failed to generate password hash: ", err)
-		return "", err
+		return 0, err
 	}
-	user, err := a.user.Creat(ctx, login, passHash)
-	if errors.Is(err, repository.ErrUserExists) {
-		a.logs.Error(repository.ErrUserExists)
-		return "", repository.ErrUserExists
+
+	filterUser := filters.UserDB{
+		Login:    login,
+		PassHash: passHash,
+	}
+
+	var user domain.User
+	user.ID, err = a.user.Create(ctx, filterUser)
+	if err != nil {
+		a.logs.Error("user has not been created: ", err)
+		return 0, err
 	}
 
 	if err != nil {
 		a.logs.Error("user creation failed:", err)
-		return "", err
+		return 0, err
 	}
 
 	a.logs.Info("user registered")
 
-	return fmt.Sprintf("%d", user.ID), nil
+	return user.ID, nil
 }
 
 // Login TODO: возращать токен
-func (a *Auth) Login(ctx context.Context, login, password string) error {
-	//TODO: хеш + соль
-	user, err := a.user.GetUser(ctx, login)
-	if errors.Is(err, repository.ErrUserNotFound) {
-		a.logs.Warn("user not found", err)
-		return err
-	} else if err != nil {
-		a.logs.Error(err) // TODO:...
-		return err
+func (a *Auth) Login(ctx context.Context, login, password string) (string, error) {
+	var userFilter filters.UserDB
+
+	userFilter, err := a.user.GetUser(ctx, login)
+	if err != nil {
+		a.logs.Error("GetUcser", err) // TODO:...
+		return "", err
+	}
+
+	user := domain.User{
+		ID:       userFilter.ID,
+		Login:    login,
+		PassHash: userFilter.PassHash,
 	}
 
 	if err = bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		a.logs.Error("Invalid password", err) // TODO:...
-		return errInvailidCredentials
+		a.logs.Error("Invalid password", err)
+		return "", errInvailidCredentials
 	}
 	userClaims := dto.MapFromUser(user)
 
 	tokenJWT, err := jwt.NewToken(userClaims, a.tokenTTL)
 	if err != nil {
-		a.logs.Error(err)
-		return err
+
+		a.logs.Error("NewToken:", err)
+		return "", err
 	}
-	fmt.Println(tokenJWT) // TODO:...
 
 	a.logs.Info("user logged in")
-	return nil
+	return tokenJWT, nil
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -37,6 +38,9 @@ func MustLoad() *Config {
 	var cfg Config
 
 	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
+		panic(err)
+	}
+	if err := godotenv.Load(".env"); err != nil {
 		panic(err)
 	}
 

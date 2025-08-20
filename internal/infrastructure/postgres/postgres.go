@@ -9,7 +9,7 @@ import (
 )
 
 type DataBase struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func New(cfg *config.Config) (*DataBase, error) {
@@ -37,12 +37,12 @@ func New(cfg *config.Config) (*DataBase, error) {
 CREATE TABLE IF NOT EXISTS user_list (
     id SERIAL PRIMARY KEY,
     login TEXT NOT NULL UNIQUE,
-    pass_hash TEXT NOT NULL
+    pass_hash BYTEA NOT NULL
 );`
 
 	_, err = connect.Exec(table)
 	if err != nil {
 		return &DataBase{}, err
 	}
-	return &DataBase{db: connect}, err
+	return &DataBase{DB: connect}, err
 }
