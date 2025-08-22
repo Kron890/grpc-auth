@@ -1,17 +1,17 @@
-package repository
+package postgres
 
 import (
 	"auth-grpc/internal/domain/filters"
-	"auth-grpc/internal/infrastructure/postgres"
+	"auth-grpc/internal/infrastructure/storage"
 	"context"
 )
 
 type Repository struct {
-	DB *postgres.DataBase
+	DB *storage.DataBase
 }
 
 // TODO:...
-func New(db *postgres.DataBase) *Repository {
+func New(db *storage.DataBase) *Repository {
 	return &Repository{DB: db}
 }
 

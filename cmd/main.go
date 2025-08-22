@@ -20,13 +20,14 @@ func main() {
 	application := app.Init(srv, cfg, logs)
 
 	go application.GRPCServer.MustRun()
-
+	// shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	signalStop := <-stop
-
+	application.PostgresServer.Stop()
 	application.GRPCServer.Stop()
+
 	logs.Info("initializer stopped: ", signalStop)
 
 }

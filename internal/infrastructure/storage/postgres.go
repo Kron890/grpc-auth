@@ -1,9 +1,10 @@
-package postgres
+package storage
 
 import (
 	"auth-grpc/internal/config"
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -12,14 +13,14 @@ type DataBase struct {
 	DB *sql.DB
 }
 
-func New(cfg *config.Config) (*DataBase, error) {
+func NewPostgres(cfg *config.Config) (*DataBase, error) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.User,
-		cfg.DBPassword,
-		cfg.Host,
-		cfg.DBPort,
-		cfg.DB,
+		cfg.PostgresUser,
+		cfg.PostgresPassword,
+		cfg.PostgresHost,
+		cfg.PostgresPort,
+		cfg.PostgresName,
 	)
 
 	connect, err := sql.Open("postgres", connStr)
@@ -45,4 +46,16 @@ CREATE TABLE IF NOT EXISTS user_list (
 		return &DataBase{}, err
 	}
 	return &DataBase{DB: connect}, err
+}
+
+func (d *DataBase) Stop() error {
+	if d.DB != nil {
+		err := d.DB.Close()
+		if err != nil {
+			log.Printf("Ошибка при закрытии соединения с БД: %v", err)
+			return err
+		}
+		log.Println("Соединение с PostgreSQL корректно закрыто")
+	}
+	return nil
 }

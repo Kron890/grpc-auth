@@ -10,14 +10,25 @@ import (
 )
 
 type Config struct {
-	ServerPort string        `yaml:"SERVER_PORT"`
-	DBPort     string        `yaml:"POSTGRES_PORT"`
-	User       string        `yaml:"POSTGRES_USER"`
-	DB         string        `yaml:"POSTGRES_DB"`
-	DBPassword string        `yaml:"POSTGRES_DBPASSWORD"`
-	Host       string        `yaml:"POSTGRES_HOST"`
-	TokenTTL   time.Duration `yaml:"token_ttl" env-required:"true"`
-	GRPC       ConfigGRPC    `yaml:"grpc"`
+	// ServerPort string `yaml:"SERVER_PORT"`
+
+	//Postgres
+	PostgresPort     string `yaml:"POSTGRES_PORT"`
+	PostgresUser     string `yaml:"POSTGRES_USER"`
+	PostgresName     string `yaml:"POSTGRES_NAME"`
+	PostgresPassword string `yaml:"POSTGRES_PASSWORD"`
+	PostgresHost     string `yaml:"POSTGRES_HOST"`
+
+	// gPRC
+	TokenTTL time.Duration `yaml:"token_ttl" env-required:"true"`
+	GRPC     ConfigGRPC    `yaml:"grpc"`
+
+	//Redis
+	RedisPort     string `yaml:"REDIS_PORT"`
+	RedisDB       int    `yaml:"REDIS_DB"`
+	RedisPassword string `yaml:"REDIS_PASSWORD"`
+	RedisHost     string `yaml:"REDIS_HOST"`
+	RedisPoolSize int    `yaml:"REDIS_POOLSIZE"`
 }
 
 type ConfigGRPC struct {
@@ -55,7 +66,8 @@ func fetchConfigPath() string {
 	flag.Parse()
 
 	if res == "" {
-		res = os.Getenv("CONFIG_PATH")
+		panic("local.yaml not found")
+		// res = os.Getenv("CONFIG_PATH")
 	}
 	return res
 }

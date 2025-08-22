@@ -3,31 +3,33 @@ package app
 import (
 	"auth-grpc/internal/app/grpcapp"
 	"auth-grpc/internal/config"
-	"auth-grpc/internal/infrastructure/postgres"
-	"auth-grpc/internal/repository"
+	"auth-grpc/internal/infrastructure/storage"
+	"auth-grpc/internal/repository/postgres"
 	"auth-grpc/internal/usecase"
 
 	"github.com/sirupsen/logrus"
 )
 
 type App struct {
-	GRPCServer *grpcapp.App
+	PostgresServer *storage.DataBase
+	GRPCServer     *grpcapp.App
 }
 
 // Init Инициализация зависимостей
 func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
-	db, err := postgres.New(cfg)
+	PostgresDB, err := storage.NewPostgres(cfg)
 	if err != nil {
 		logs.Error("database is not connected", err)
 	}
 
-	repository := repository.New(db)
+	repository := postgres.New(PostgresDB)
 
 	uc := usecase.New(logs, repository, repository, cfg.TokenTTL)
 
 	gRPCServer := grpcapp.New(cfg.GRPC.Port, uc, logs)
 
 	return &App{
-		GRPCServer: gRPCServer,
+		PostgresServer: PostgresDB,
+		GRPCServer:     gRPCServer,
 	}
 }
