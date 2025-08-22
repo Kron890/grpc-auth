@@ -6,6 +6,7 @@ import (
 	"auth-grpc/internal/domain/filters"
 	"auth-grpc/internal/lib/jwt"
 	"auth-grpc/internal/lib/jwt/dto"
+	"auth-grpc/internal/repository/redisRepo"
 	"context"
 	"errors"
 	"time"
@@ -19,19 +20,21 @@ var (
 )
 
 type Auth struct {
-	logs        *logrus.Logger
-	user        internal.User
-	appProvider internal.AppProvider
-	tokenTTL    time.Duration
+	logs  *logrus.Logger
+	user  internal.User
+	redis *redisRepo.RepositoryRedis
+	// appProvider internal.AppProvider
+	tokenTTL time.Duration
 }
 
 // TODO:...
-func New(logs *logrus.Logger, user internal.User, appProvider internal.AppProvider, tokenTTL time.Duration) *Auth {
+func New(logs *logrus.Logger, user internal.User, redis *redisRepo.RepositoryRedis, tokenTTL time.Duration) *Auth {
 	return &Auth{
-		logs:        logs,
-		user:        user,
-		appProvider: appProvider,
-		tokenTTL:    tokenTTL,
+		logs:  logs,
+		user:  user,
+		redis: redis,
+		// appProvider: appProvider,
+		tokenTTL: tokenTTL,
 	}
 }
 

@@ -6,17 +6,17 @@ import (
 	"context"
 )
 
-type Repository struct {
+type RepositoryPostgres struct {
 	DB *storage.DataBase
 }
 
 // TODO:...
-func New(db *storage.DataBase) *Repository {
-	return &Repository{DB: db}
+func New(db *storage.DataBase) *RepositoryPostgres {
+	return &RepositoryPostgres{DB: db}
 }
 
 // Create добавляет в базу данных логин и хеш-пароля
-func (r *Repository) Create(ctx context.Context, user filters.UserDB) (int64, error) {
+func (r *RepositoryPostgres) Create(ctx context.Context, user filters.UserDB) (int64, error) {
 	const query = `
 		INSERT INTO user_list (login, pass_hash)
 		VALUES ($1, $2)
@@ -31,7 +31,7 @@ func (r *Repository) Create(ctx context.Context, user filters.UserDB) (int64, er
 }
 
 // GetUser TODO:...
-func (r *Repository) GetUser(ctx context.Context, login string) (filters.UserDB, error) {
+func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (filters.UserDB, error) {
 	const query = `SELECT id, pass_hash FROM user_list WHERE login = $1`
 
 	var u filters.UserDB
@@ -44,6 +44,6 @@ func (r *Repository) GetUser(ctx context.Context, login string) (filters.UserDB,
 }
 
 // TODO:...
-func (r *Repository) App(ctx context.Context, appID int) {
+func (r *RepositoryPostgres) App(ctx context.Context, appID int) {
 
 }

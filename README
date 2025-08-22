@@ -13,8 +13,3 @@ TODO: Сделать ошибки по sql запросам
 добавить Комменты к методам 
 также по возможности dockerfile после завершения проекта 
 
-upd: изменен config, добавлен redis 
-изменен local.yaml добавлен redis 
-изменен название postrges на storage и добавлен redis.go 
-изменен директория repository: добавлена  postrges/postgres.go redisRepo/redis.go
-добавлен  shutdown для postgres

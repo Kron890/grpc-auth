@@ -4,16 +4,17 @@ import (
 	"auth-grpc/internal/config"
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 type DataBase struct {
-	DB *sql.DB
+	DB   *sql.DB
+	logs *logrus.Logger
 }
 
-func NewPostgres(cfg *config.Config) (*DataBase, error) {
+func NewPostgres(cfg *config.Config, logs *logrus.Logger) (*DataBase, error) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.PostgresUser,
@@ -45,17 +46,13 @@ CREATE TABLE IF NOT EXISTS user_list (
 	if err != nil {
 		return &DataBase{}, err
 	}
-	return &DataBase{DB: connect}, err
+	return &DataBase{DB: connect, logs: logs}, err
 }
 
-func (d *DataBase) Stop() error {
-	if d.DB != nil {
-		err := d.DB.Close()
-		if err != nil {
-			log.Printf("Ошибка при закрытии соединения с БД: %v", err)
-			return err
-		}
-		log.Println("Соединение с PostgreSQL корректно закрыто")
+func (d *DataBase) Close() {
+	err := d.DB.Close()
+	if err != nil {
+		d.logs.Error("Error closing the DATABASE connection: ", err)
 	}
-	return nil
+	d.logs.Info("stopping Redis server")
 }

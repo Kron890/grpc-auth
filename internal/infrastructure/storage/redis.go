@@ -7,13 +7,15 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 )
 
 type DataBaseRedis struct {
-	DB *redis.Client
+	DB   *redis.Client
+	logs *logrus.Logger
 }
 
-func NewRedis(cfg *config.Config) (*DataBaseRedis, error) {
+func NewRedis(cfg *config.Config, logs *logrus.Logger) (*DataBaseRedis, error) {
 	redisAddr := fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort)
 
 	client := redis.NewClient(&redis.Options{
@@ -30,9 +32,10 @@ func NewRedis(cfg *config.Config) (*DataBaseRedis, error) {
 		return nil, fmt.Errorf("redis connection failed: %w", err)
 	}
 
-	return &DataBaseRedis{DB: client}, nil
+	return &DataBaseRedis{DB: client, logs: logs}, nil
 }
 
-func (r *DataBaseRedis) CloseRedis() error {
+func (r *DataBaseRedis) Close() error {
+	r.logs.Info("stopping Redis server")
 	return r.DB.Close()
 }
