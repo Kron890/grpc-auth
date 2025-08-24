@@ -20,21 +20,19 @@ var (
 )
 
 type Auth struct {
-	logs  *logrus.Logger
-	user  internal.User
-	redis *redisRepo.RepositoryRedis
-	// appProvider internal.AppProvider
-	tokenTTL time.Duration
+	logs       *logrus.Logger
+	user       internal.User
+	redis      *redisRepo.RepositoryRedis
+	JwtManager *jwt.Manager
 }
 
 // TODO:...
-func New(logs *logrus.Logger, user internal.User, redis *redisRepo.RepositoryRedis, tokenTTL time.Duration) *Auth {
+func New(logs *logrus.Logger, user internal.User, redis *redisRepo.RepositoryRedis, jwtManager *jwt.Manager) *Auth {
 	return &Auth{
-		logs:  logs,
-		user:  user,
-		redis: redis,
-		// appProvider: appProvider,
-		tokenTTL: tokenTTL,
+		logs:       logs,
+		user:       user,
+		redis:      redis,
+		JwtManager: jwtManager,
 	}
 }
 
@@ -53,13 +51,9 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 
 	var user domain.User
 	user.ID, err = a.user.Create(ctx, filterUser)
+	//FIX: Добавить ошибку
 	if err != nil {
 		a.logs.Error("user has not been created: ", err)
-		return 0, err
-	}
-
-	if err != nil {
-		a.logs.Error("user creation failed:", err)
 		return 0, err
 	}
 
@@ -68,14 +62,13 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 	return user.ID, nil
 }
 
-// Login TODO: возращать токен
-func (a *Auth) Login(ctx context.Context, login, password string) (string, error) {
+func (a *Auth) Login(ctx context.Context, login, password string) (domain.Token, error) {
 	var userFilter filters.UserDB
 
 	userFilter, err := a.user.GetUser(ctx, login)
 	if err != nil {
-		a.logs.Error("GetUcser", err) // TODO:...
-		return "", err
+		a.logs.Error("GetUser", err) // TODO:...
+		return domain.Token{}, err
 	}
 
 	user := domain.User{
@@ -86,17 +79,84 @@ func (a *Auth) Login(ctx context.Context, login, password string) (string, error
 
 	if err = bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		a.logs.Error("Invalid password", err)
-		return "", errInvailidCredentials
+		return domain.Token{}, errInvailidCredentials
 	}
-	userClaims := dto.MapFromUser(user)
+	claims := dto.MapFromUser(user)
 
-	tokenJWT, err := jwt.NewToken(userClaims, a.tokenTTL)
+	accessToken, err := a.JwtManager.NewAccess(claims)
 	if err != nil {
-
 		a.logs.Error("NewToken:", err)
-		return "", err
+		return domain.Token{}, err
 	}
 
+	refreshTTL := 7 * 24 * time.Hour
+	refreshToken, err := a.JwtManager.NewRefresh(claims)
+	if err != nil {
+		return domain.Token{}, err
+	}
+
+	if err := a.redis.SaveRefreshToken(ctx, user.ID, refreshToken, refreshTTL); err != nil {
+		return domain.Token{}, err
+	}
+
+	tokenUser := domain.Token{Access: accessToken, Refresh: refreshToken}
 	a.logs.Info("user logged in")
-	return tokenJWT, nil
+	return tokenUser, nil
+}
+
+func (a *Auth) Verify(string) error {
+	return nil
+
+	// Здесь принимаешь accessToken и:
+
+	// валидируешь его через jwt.Parse.
+
+	// если expired → ошибка.
+
+	// если подпись невалидна → ошибка.
+
+	// иначе всё ок.
+}
+
+// Refresh TODO:...
+func (a *Auth) Refresh(ctx context.Context, refreshToken string) (domain.Token, error) {
+	// валидируем refresh
+	claims, err := a.JwtManager.ValidateRefresh(refreshToken)
+	if err != nil {
+		return domain.Token{}, err
+	}
+
+	userID := int64(claims["uid"].(float64))
+
+	// сверяем с Redis
+	stored, err := a.redis.GetRefreshToken(ctx, userID)
+	if err != nil || stored != refreshToken {
+		return domain.Token{}, errors.New("invalid refresh")
+	}
+
+	userClaims := dto.UserClaims{
+		ID:    userID,
+		Login: claims["login"].(string),
+	}
+
+	// новые токены
+	accessToken, err := a.JwtManager.NewAccess(userClaims)
+	if err != nil {
+		return domain.Token{}, err
+	}
+
+	newRefreshToken, err := a.JwtManager.NewRefresh(userClaims)
+	if err != nil {
+		return domain.Token{}, err
+	}
+
+	// сохраняем новый refresh в Redis
+	if err := a.redis.SaveRefreshToken(ctx, userID, newRefreshToken, a.JwtManager.RefreshTTL); err != nil {
+		return domain.Token{}, err
+	}
+
+	return domain.Token{
+		Access:  accessToken,
+		Refresh: newRefreshToken,
+	}, nil
 }

@@ -20,8 +20,8 @@ type Config struct {
 	PostgresHost     string `yaml:"POSTGRES_HOST"`
 
 	// gPRC
-	TokenTTL time.Duration `yaml:"token_ttl" env-required:"true"`
-	GRPC     ConfigGRPC    `yaml:"grpc"`
+	// TokenTTL time.Duration `yaml:"token_ttl" env-required:"true"`
+	GRPC ConfigGRPC `yaml:"grpc"`
 
 	//Redis
 	RedisPort     string `yaml:"REDIS_PORT"`

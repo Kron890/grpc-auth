@@ -4,9 +4,11 @@ import (
 	"auth-grpc/internal/app/grpcapp"
 	"auth-grpc/internal/config"
 	"auth-grpc/internal/infrastructure/storage"
+	"auth-grpc/internal/lib/jwt"
 	"auth-grpc/internal/repository/postgres"
 	"auth-grpc/internal/repository/redisRepo"
 	"auth-grpc/internal/usecase"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -28,12 +30,17 @@ func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
 	if err != nil {
 		logs.Error("database(Redis) is not connected", err)
 	}
+	//FIX: вынести в переменную время
+	jwtManager, err := jwt.NewManager(15*time.Minute, 7*24*time.Hour)
+	if err != nil {
+		logs.Error("failed to init jwt manager:", err)
+	}
 
 	repoPostgres := postgres.New(postgresDB)
 
 	repoRedis := redisRepo.New(redisDB)
 
-	uc := usecase.New(logs, repoPostgres, repoRedis, cfg.TokenTTL)
+	uc := usecase.New(logs, repoPostgres, repoRedis, jwtManager)
 
 	gRPCServer := grpcapp.New(cfg.GRPC.Port, uc, logs)
 

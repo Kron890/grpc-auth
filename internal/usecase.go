@@ -1,8 +1,13 @@
 package internal
 
-import "context"
+import (
+	"auth-grpc/internal/domain"
+	"context"
+)
 
 type Auth interface {
 	Register(ctx context.Context, login, password string) (int64, error)
-	Login(ctx context.Context, login, password string) (string, error)
+	Login(ctx context.Context, login, password string) (domain.Token, error)
+	Verify(string) error
+	Refresh(ctx context.Context, refreshToken string) (domain.Token, error)
 }

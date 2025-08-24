@@ -2,6 +2,7 @@ package grpcapp
 
 import (
 	authgrpc "auth-grpc/internal/delivery/grpc/auth"
+	"auth-grpc/internal/delivery/middleware"
 	"auth-grpc/internal/usecase"
 	"fmt"
 	"net"
@@ -17,7 +18,7 @@ type App struct {
 }
 
 func New(port int, uc *usecase.Auth, logs *logrus.Logger) *App {
-	gRPCServer := grpc.NewServer()
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthInterceptor))
 
 	authgrpc.New(gRPCServer, uc)
 

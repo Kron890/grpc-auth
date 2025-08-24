@@ -1,13 +1,10 @@
 package redisRepo
 
 import (
-	"auth-grpc/internal/domain"
 	"auth-grpc/internal/infrastructure/storage"
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/go-redis/redis/v8"
 )
 
 type RepositoryRedis struct {
@@ -19,26 +16,19 @@ func New(db *storage.DataBaseRedis) *RepositoryRedis {
 }
 
 // ШАБЛОН
-func (r *RepositoryRedis) SaveToken(ctx context.Context, token domain.Token) error {
-	ttl := 24 * time.Hour
-	return r.DB.DB.Set(ctx, token.UserID, token.RefreshToken, ttl).Err()
-
+func (r *RepositoryRedis) SaveRefreshToken(ctx context.Context, userID int64, token string, ttl time.Duration) error {
+	key := fmt.Sprintf("refresh:%d", userID)
+	return r.DB.DB.Set(ctx, key, token, ttl).Err()
 }
 
 // ШАБЛОН
-func (r *RepositoryRedis) GetToken(ctx context.Context) (string, error) {
-	userID, err := r.DB.DB.Get(ctx, "key").Result()
-	if err == redis.Nil {
-		//TODO: Создать ошибку
-		return "", fmt.Errorf("key not found")
-	} else if err != nil {
-		return "", err
-	}
-	return userID, nil
+func (r *RepositoryRedis) GetRefreshToken(ctx context.Context, userID int64) (string, error) {
+	key := fmt.Sprintf("refresh:%d", userID)
+	return r.DB.DB.Get(ctx, key).Result()
 }
 
 // ШАБЛОН
-func (r *RepositoryRedis) DeleteToken(ctx context.Context, login string) error {
-	return r.DB.DB.Del(ctx, login).Err()
-
+func (r *RepositoryRedis) DeleteRefreshToken(ctx context.Context, userID int64) error {
+	key := fmt.Sprintf("refresh:%d", userID)
+	return r.DB.DB.Del(ctx, key).Err()
 }

@@ -48,7 +48,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *sso.LoginRequest) (*sso.Logi
 		//todo ...
 		return &sso.LoginResponse{}, status.Error(codes.Internal, "internal error")
 	}
-	return &sso.LoginResponse{AccessToken: token}, nil
+	return &sso.LoginResponse{AccessToken: token.Access}, nil
 }
 
 func (s *ServerAPI) VerifyToken(ctx context.Context, req *sso.VerifyTokenRequest) (*sso.VerifyTokenResponse, error) {
