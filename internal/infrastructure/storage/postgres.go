@@ -10,7 +10,7 @@ import (
 )
 
 type DataBase struct {
-	DB   *sql.DB
+	*sql.DB
 	logs *logrus.Logger
 }
 
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS user_list (
 	if err != nil {
 		return &DataBase{}, err
 	}
-	return &DataBase{DB: connect, logs: logs}, err
+	return &DataBase{connect, logs}, err
 }
 
 func (d *DataBase) Close() {

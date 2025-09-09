@@ -27,7 +27,7 @@ func main() {
 
 	signalStop := <-stop
 	application.PostgresServer.Close()
-	application.RedisServer.Close()
+	application.RedisServer.CloseDB()
 	application.GRPCServer.Stop()
 
 	logs.Info("initializer stopped: ", signalStop)

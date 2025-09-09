@@ -4,8 +4,8 @@ import (
 	"auth-grpc/internal"
 	"auth-grpc/internal/domain"
 	"auth-grpc/internal/domain/filters"
-	"auth-grpc/internal/lib/jwt"
-	"auth-grpc/internal/lib/jwt/dto"
+	"auth-grpc/internal/jwt"
+	"auth-grpc/internal/jwt/dto"
 	"auth-grpc/internal/repository/redisRepo"
 	"context"
 	"errors"
@@ -50,11 +50,21 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 	}
 
 	var user domain.User
-	user.ID, err = a.user.Create(ctx, filterUser)
-	//FIX: Добавить ошибку
+
+	exists, err := a.user.CheckUser(ctx, login)
 	if err != nil {
-		a.logs.Error("user has not been created: ", err)
-		return 0, err
+		a.logs.Error("CheckUser", err)
+		return 0, errors.New("") //TODO: добавить ошибку
+	}
+	if exists {
+		return 0, errors.New("user already exists")
+	}
+
+	user.ID, err = a.user.Create(ctx, filterUser)
+
+	if err != nil {
+		a.logs.Error("Create: ", err)
+		return 0, errors.New("user has not been created")
 	}
 
 	a.logs.Info("user registered")
@@ -67,7 +77,7 @@ func (a *Auth) Login(ctx context.Context, login, password string) (domain.Token,
 
 	userFilter, err := a.user.GetUser(ctx, login)
 	if err != nil {
-		a.logs.Error("GetUser", err) // TODO:...
+		a.logs.Error("GetUser", err) // TODO:Добавить ошибки на то что нет логина и другая ошибка
 		return domain.Token{}, err
 	}
 
@@ -81,7 +91,9 @@ func (a *Auth) Login(ctx context.Context, login, password string) (domain.Token,
 		a.logs.Error("Invalid password", err)
 		return domain.Token{}, errInvailidCredentials
 	}
-	claims := dto.MapFromUser(user)
+
+	//TODO: надо вынести в отдельный метод или пакет, который будет работать с токенами.
+	claims := dto.MapFromUser(user.ID, user.Login)
 
 	accessToken, err := a.JwtManager.NewAccess(claims)
 	if err != nil {
@@ -94,7 +106,7 @@ func (a *Auth) Login(ctx context.Context, login, password string) (domain.Token,
 	if err != nil {
 		return domain.Token{}, err
 	}
-
+	//
 	if err := a.redis.SaveRefreshToken(ctx, user.ID, refreshToken, refreshTTL); err != nil {
 		return domain.Token{}, err
 	}

@@ -10,6 +10,7 @@ import (
 type User interface {
 	GetUser(ctx context.Context, login string) (filters.UserDB, error)
 	Create(ctx context.Context, user filters.UserDB) (int64, error)
+	CheckUser(ctx context.Context, login string) (bool, error)
 }
 
 type RepoRedis interface {

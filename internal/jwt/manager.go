@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"auth-grpc/internal/lib/jwt/dto"
+	"auth-grpc/internal/jwt/dto"
 	"fmt"
 	"os"
 	"time"

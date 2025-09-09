@@ -23,7 +23,7 @@ func (r *RepositoryPostgres) Create(ctx context.Context, user filters.UserDB) (i
 		RETURNING id
 	`
 	var id int64
-	err := r.DB.DB.QueryRowContext(ctx, query, user.Login, user.PassHash).Scan(&id)
+	err := r.DB.QueryRowContext(ctx, query, user.Login, user.PassHash).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -35,7 +35,7 @@ func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (filters
 	const query = `SELECT id, pass_hash FROM user_list WHERE login = $1`
 
 	var u filters.UserDB
-	err := r.DB.DB.QueryRowContext(ctx, query, login).Scan(&u.ID, &u.PassHash)
+	err := r.DB.QueryRowContext(ctx, query, login).Scan(&u.ID, &u.PassHash)
 	if err != nil {
 		return filters.UserDB{}, err
 	}
@@ -46,4 +46,15 @@ func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (filters
 // TODO:...
 func (r *RepositoryPostgres) App(ctx context.Context, appID int) {
 
+}
+
+// TODO: ПРОВЕРИТЬ
+func (r *RepositoryPostgres) CheckUser(ctx context.Context, login string) (bool, error) {
+	const query = `SELECT EXISTS(SELECT 1 FROM user_list WHERE login = $1)`
+	var exists bool
+	err := r.DB.QueryRowContext(ctx, query, login).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }

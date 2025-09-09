@@ -11,7 +11,7 @@ import (
 )
 
 type DataBaseRedis struct {
-	DB   *redis.Client
+	*redis.Client
 	logs *logrus.Logger
 }
 
@@ -32,10 +32,10 @@ func NewRedis(cfg *config.Config, logs *logrus.Logger) (*DataBaseRedis, error) {
 		return nil, fmt.Errorf("redis connection failed: %w", err)
 	}
 
-	return &DataBaseRedis{DB: client, logs: logs}, nil
+	return &DataBaseRedis{client, logs}, nil
 }
 
-func (r *DataBaseRedis) Close() error {
+func (r *DataBaseRedis) CloseDB() error {
 	r.logs.Info("stopping Redis server")
-	return r.DB.Close()
+	return r.Close()
 }
