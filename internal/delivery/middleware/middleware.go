@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"auth-grpc/internal/lib/jwt"
+	"auth-grpc/internal/jwt"
 	"context"
 
 	"google.golang.org/grpc"

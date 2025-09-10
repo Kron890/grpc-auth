@@ -30,6 +30,7 @@ func New(port int, uc *usecase.Auth, logs *logrus.Logger) *App {
 }
 
 // Запуск gRPC сервера
+// TODO: Убрать must
 func (a *App) MustRun() {
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {
@@ -40,6 +41,7 @@ func (a *App) MustRun() {
 	if err := a.gRPCServer.Serve(listen); err != nil {
 		panic(err)
 	}
+
 }
 
 func (a *App) Stop() {

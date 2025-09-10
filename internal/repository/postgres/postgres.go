@@ -4,6 +4,8 @@ import (
 	"auth-grpc/internal/domain/filters"
 	"auth-grpc/internal/infrastructure/storage"
 	"context"
+	"database/sql"
+	"errors"
 )
 
 type RepositoryPostgres struct {
@@ -37,6 +39,9 @@ func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (filters
 	var u filters.UserDB
 	err := r.DB.QueryRowContext(ctx, query, login).Scan(&u.ID, &u.PassHash)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return filters.UserDB{}, ErrUserNotFound
+		}
 		return filters.UserDB{}, err
 	}
 

@@ -4,6 +4,7 @@ import (
 	sso "auth-grpc/contract/gen/auth"
 	"auth-grpc/internal"
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
@@ -30,7 +31,9 @@ func (s *ServerAPI) Register(ctx context.Context, req *sso.RegisterRequest) (*ss
 
 	id, err := s.auth.Register(ctx, req.GetLogin(), req.GetPassword())
 	if err != nil {
-		//todo...
+		if errors.Is(err, internal.ErrInvailidCredentials) {
+			return &sso.RegisterResponse{}, status.Error(codes.Internal, "invalid credentials")
+		}
 		return &sso.RegisterResponse{}, status.Error(codes.Internal, "internal error")
 	}
 

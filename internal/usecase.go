@@ -10,4 +10,5 @@ type Auth interface {
 	Login(ctx context.Context, login, password string) (domain.Token, error)
 	Verify(string) error
 	Refresh(ctx context.Context, refreshToken string) (domain.Token, error)
+	GenerateTokens(id int64, login string) (domain.Token, error)
 }

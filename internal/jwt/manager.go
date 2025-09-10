@@ -2,11 +2,16 @@ package jwt
 
 import (
 	"auth-grpc/internal/jwt/dto"
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+)
+
+var (
+	ErrInvailidToken = errors.New("invalid token")
 )
 
 type Manager struct {
@@ -75,7 +80,7 @@ func (m *Manager) parse(tokenStr, expectedType string) (jwt.MapClaims, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token")
+		return nil, ErrInvailidToken
 	}
 
 	// проверка типа
