@@ -3,7 +3,7 @@ package usecase
 import (
 	"auth-grpc/internal"
 	"auth-grpc/internal/domain"
-	"auth-grpc/internal/domain/filters"
+	"auth-grpc/internal/domain/mappers"
 	"auth-grpc/internal/jwt"
 	"auth-grpc/internal/jwt/dto"
 	"auth-grpc/internal/repository/postgres"
@@ -22,11 +22,11 @@ type Auth struct {
 	logs       *logrus.Logger
 	user       internal.User
 	redis      *redisRepo.RepositoryRedis
-	JwtManager *jwt.Manager
+	JwtManager jwt.JWTManager
 }
 
 // TODO:...
-func New(logs *logrus.Logger, user internal.User, redis *redisRepo.RepositoryRedis, jwtManager *jwt.Manager) *Auth {
+func New(logs *logrus.Logger, user internal.User, redis *redisRepo.RepositoryRedis, jwtManager jwt.JWTManager) *Auth {
 	return &Auth{
 		logs:       logs,
 		user:       user,
@@ -43,12 +43,10 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 		return 0, internal.ErrInternal
 	}
 
-	filterUser := filters.UserDB{
+	filterUser := mappers.UserDB{
 		Login:    login,
 		PassHash: passHash,
 	}
-
-	var user domain.User
 
 	exists, err := a.user.CheckUser(ctx, login)
 	if err != nil {
@@ -59,7 +57,7 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 		return 0, errors.New("user already exists")
 	}
 
-	user.ID, err = a.user.Create(ctx, filterUser)
+	userID, err := a.user.Create(ctx, filterUser)
 	if err != nil {
 		a.logs.Error("Create: ", err)
 		return 0, internal.ErrInternal
@@ -67,11 +65,11 @@ func (a *Auth) Register(ctx context.Context, login, password string) (int64, err
 
 	a.logs.Info("user registered")
 
-	return user.ID, nil
+	return userID, nil
 }
 
 func (a *Auth) Login(ctx context.Context, login, password string) (domain.Token, error) {
-	var userFilter filters.UserDB
+	var userFilter mappers.UserDB
 
 	userFilter, err := a.user.GetUser(ctx, login)
 	if err != nil {
@@ -165,7 +163,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (domain.Token, 
 		return domain.Token{}, err
 	}
 	// сохраняем новый refresh в Redis
-	if err := a.redis.SaveRefreshToken(ctx, userID, tokens.Refresh, a.JwtManager.RefreshTTL); err != nil {
+	if err := a.redis.SaveRefreshToken(ctx, userID, tokens.Refresh, a.JwtManager.GetRefreshTTL()); err != nil {
 		a.logs.Error("SaveRefreshToken: ", err)
 		return domain.Token{}, internal.ErrInternal
 	}
@@ -191,6 +189,7 @@ func (a *Auth) CreateTokens(id int64, login string) (domain.Token, error) {
 		return domain.Token{}, internal.ErrInternal
 	}
 	return domain.Token{
+		UserID:  id,
 		Access:  accessToken,
 		Refresh: newRefreshToken,
 	}, nil

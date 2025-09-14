@@ -3,6 +3,7 @@ package grpcapp
 import (
 	authgrpc "auth-grpc/internal/delivery/grpc/auth"
 	"auth-grpc/internal/delivery/middleware"
+	"auth-grpc/internal/jwt"
 	"auth-grpc/internal/usecase"
 	"fmt"
 	"net"
@@ -17,8 +18,8 @@ type App struct {
 	port       int
 }
 
-func New(port int, uc *usecase.Auth, logs *logrus.Logger) *App {
-	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthInterceptor))
+func New(port int, uc *usecase.Auth, jwtManager jwt.JWTManager, logs *logrus.Logger) *App {
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(middleware.NewAuthInterceptor(jwtManager)))
 
 	authgrpc.New(gRPCServer, uc)
 

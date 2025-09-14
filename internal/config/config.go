@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"time"
 
@@ -66,8 +67,8 @@ func fetchConfigPath() string {
 	flag.Parse()
 
 	if res == "" {
-		panic("local.yaml not found")
-		// res = os.Getenv("CONFIG_PATH")
+		fmt.Println("local.yaml not found")
+		res = "config/local.yaml" // Используем конфиг по умолчанию
 	}
 	return res
 }

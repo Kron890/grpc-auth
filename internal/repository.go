@@ -1,15 +1,15 @@
 package internal
 
 import (
-	"auth-grpc/internal/domain/filters"
+	"auth-grpc/internal/domain/mappers"
 	"context"
 	"time"
 )
 
 // TODO: передавать структуру
 type User interface {
-	GetUser(ctx context.Context, login string) (filters.UserDB, error)
-	Create(ctx context.Context, user filters.UserDB) (int64, error)
+	GetUser(ctx context.Context, login string) (mappers.UserDB, error)
+	Create(ctx context.Context, user mappers.UserDB) (int64, error)
 	CheckUser(ctx context.Context, login string) (bool, error)
 }
 

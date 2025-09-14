@@ -32,3 +32,9 @@ func (r *RepositoryRedis) DeleteRefreshToken(ctx context.Context, userID int64) 
 	key := fmt.Sprintf("refresh:%d", userID)
 	return r.DB.Del(ctx, key).Err()
 }
+
+// DeleteToken удаляет токен по логину (для совместимости с интерфейсом)
+func (r *RepositoryRedis) DeleteToken(ctx context.Context, login string) error {
+	// Этот метод не используется
+	return nil
+}

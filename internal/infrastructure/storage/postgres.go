@@ -54,5 +54,5 @@ func (d *DataBase) Close() {
 	if err != nil {
 		d.logs.Error("Error closing the DATABASE connection: ", err)
 	}
-	d.logs.Info("stopping Redis server")
+	d.logs.Info("stopping PostgreSQL server")
 }

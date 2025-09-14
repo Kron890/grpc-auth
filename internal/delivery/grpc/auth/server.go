@@ -48,7 +48,9 @@ func (s *ServerAPI) Login(ctx context.Context, req *sso.LoginRequest) (*sso.Logi
 
 	token, err := s.auth.Login(ctx, req.GetLogin(), req.Password)
 	if err != nil {
-		//todo ...
+		if errors.Is(err, internal.ErrInvailidCredentials) {
+			return &sso.LoginResponse{}, status.Error(codes.Unauthenticated, "invalid credentials")
+		}
 		return &sso.LoginResponse{}, status.Error(codes.Internal, "internal error")
 	}
 	return &sso.LoginResponse{AccessToken: token.Access}, nil

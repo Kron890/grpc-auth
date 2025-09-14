@@ -1,7 +1,7 @@
 package domain
 
 type Token struct {
-	UserID  string
+	UserID  int64
 	Refresh string
 	Access  string
 }

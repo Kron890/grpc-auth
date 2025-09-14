@@ -16,6 +16,15 @@ services:
     networks:
       - mynetwork
 
+  redis:
+    image: redis:latest
+    container_name: redis-auth
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 12345
+    networks:
+      - mynetwork
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin-container-gRPC

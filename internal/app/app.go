@@ -47,7 +47,7 @@ func Init(srv *Server, cfg *config.Config, logs *logrus.Logger) *App {
 
 	uc := usecase.New(logs, repoPostgres, repoRedis, jwtManager)
 
-	gRPCServer := grpcapp.New(cfg.GRPC.Port, uc, logs)
+	gRPCServer := grpcapp.New(cfg.GRPC.Port, uc, jwtManager, logs)
 
 	return &App{
 		RedisServer:    redisDB,

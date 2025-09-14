@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"auth-grpc/internal/domain/filters"
+	"auth-grpc/internal/domain/mappers"
 	"auth-grpc/internal/infrastructure/storage"
 	"context"
 	"database/sql"
@@ -18,7 +18,7 @@ func New(db *storage.DataBase) *RepositoryPostgres {
 }
 
 // Create добавляет в базу данных логин и хеш-пароля
-func (r *RepositoryPostgres) Create(ctx context.Context, user filters.UserDB) (int64, error) {
+func (r *RepositoryPostgres) Create(ctx context.Context, user mappers.UserDB) (int64, error) {
 	const query = `
 		INSERT INTO user_list (login, pass_hash)
 		VALUES ($1, $2)
@@ -33,16 +33,16 @@ func (r *RepositoryPostgres) Create(ctx context.Context, user filters.UserDB) (i
 }
 
 // GetUser TODO:...
-func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (filters.UserDB, error) {
+func (r *RepositoryPostgres) GetUser(ctx context.Context, login string) (mappers.UserDB, error) {
 	const query = `SELECT id, pass_hash FROM user_list WHERE login = $1`
 
-	var u filters.UserDB
+	var u mappers.UserDB
 	err := r.DB.QueryRowContext(ctx, query, login).Scan(&u.ID, &u.PassHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return filters.UserDB{}, ErrUserNotFound
+			return mappers.UserDB{}, ErrUserNotFound
 		}
-		return filters.UserDB{}, err
+		return mappers.UserDB{}, err
 	}
 
 	return u, nil

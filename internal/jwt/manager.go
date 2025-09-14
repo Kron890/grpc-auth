@@ -90,3 +90,8 @@ func (m *Manager) parse(tokenStr, expectedType string) (jwt.MapClaims, error) {
 
 	return claims, nil
 }
+
+// GetRefreshTTL возвращает время жизни refresh токена
+func (m *Manager) GetRefreshTTL() time.Duration {
+	return m.RefreshTTL
+}

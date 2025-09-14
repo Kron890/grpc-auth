@@ -1,10 +1,41 @@
-В разработке: gRPC-сервис аутентификации и авторизации.
+# gRPC Auth Service
+
+gRPC-сервис аутентификации и авторизации.
 Реализует регистрацию пользователей, вход, JWT-токенизацию (Access/Refresh) и верификацию прав доступа через gRPC.
 Используется Redis для управления сессиями и безопасного хранения учетных данных.
 
-go run cmd/main.go --config=./config/local.yaml
+## Запуск
 
+### 1. Запуск зависимостей (PostgreSQL + Redis)
+```bash
+docker-compose up -d
+```
+
+### 2. Запуск приложения
+```bash
+go run cmd/main.go --config=./config/local.yaml
+```
+
+### 3. Генерация protobuf (если нужно)
+```bash
 protoc --go_out=. --go-grpc_out=. ./contract/proto/auth.proto
+```
+
+## Конфигурация
+
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379 (пароль: 12345)
+- gRPC: localhost:55055
+
+## Переменные окружения
+
+Создайте файл `.env`:
+```
+SECRET=your-secret-key-here-make-it-long-and-secure
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=qwerty
+POSTGRES_DB=my_db
+```
 
 
 
