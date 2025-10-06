@@ -83,7 +83,6 @@ func (m *Manager) parse(tokenStr, expectedType string) (jwt.MapClaims, error) {
 		return nil, ErrInvailidToken
 	}
 
-	// проверка типа
 	if claims["typ"] != expectedType {
 		return nil, fmt.Errorf("wrong token type: %v", claims["typ"])
 	}

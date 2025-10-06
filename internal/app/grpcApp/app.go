@@ -5,6 +5,7 @@ import (
 	"auth-grpc/internal/delivery/middleware"
 	"auth-grpc/internal/jwt"
 	"auth-grpc/internal/usecase"
+	"context"
 	"fmt"
 	"net"
 
@@ -49,4 +50,23 @@ func (a *App) Stop() {
 	a.logs.Info("stopping gRPC server")
 	a.gRPCServer.GracefulStop()
 
+}
+
+// StopWithDeadline выполняет graceful shutdown с учётом дедлайна контекста.
+// Если дедлайн истёк до завершения, сервер останавливается принудительно.
+func (a *App) StopWithDeadline(ctx context.Context) {
+	done := make(chan struct{})
+	go func() {
+		a.logs.Info("stopping gRPC server (graceful)")
+		a.gRPCServer.GracefulStop()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		return
+	case <-ctx.Done():
+		a.logs.Warn("graceful stop timed out, forcing stop")
+		a.gRPCServer.Stop()
+	}
 }

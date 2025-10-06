@@ -21,26 +21,8 @@ go run cmd/main.go --config=./config/local.yaml
 protoc --go_out=. --go-grpc_out=. ./contract/proto/auth.proto
 ```
 
-## Конфигурация
-
-- PostgreSQL: localhost:5432
-- Redis: localhost:6379 (пароль: 12345)
-- gRPC: localhost:55055
-
-## Переменные окружения
-
-Создайте файл `.env`:
-```
-SECRET=your-secret-key-here-make-it-long-and-secure
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=qwerty
-POSTGRES_DB=my_db
-```
 
 
 
-TODO: Сделать ошибки по sql запросам
-настроить более удоюнол логгер, чтобы он показывал,в каком методе возникла ошибка,
-добавить Комменты к методам 
-также по возможности dockerfile после завершения проекта 
+
 
